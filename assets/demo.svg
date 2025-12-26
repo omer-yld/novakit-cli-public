@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;display=swap');
+      .terminal { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+      .bg { fill: #1e1e2e; }
+      .header-bg { fill: #313244; }
+      .text { fill: #cdd6f4; font-size: 12px; }
+      .text-dim { fill: #6c7086; font-size: 12px; }
+      .text-green { fill: #a6e3a1; font-size: 12px; }
+      .text-blue { fill: #89b4fa; font-size: 12px; }
+      .text-yellow { fill: #f9e2af; font-size: 12px; }
+      .text-pink { fill: #f5c2e7; font-size: 12px; }
+      .text-mauve { fill: #cba6f7; font-size: 12px; }
+      .code-bg { fill: #181825; rx: 6; }
+      .title { fill: #cdd6f4; font-size: 14px; font-weight: 600; }
+      .cursor { fill: #f5e0dc; animation: blink 1s infinite; }
+      @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+      @keyframes typing { from { width: 0; } to { width: 100%; } }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="800" height="500" rx="10"/>
+
+  <!-- Window buttons -->
+  <circle cx="20" cy="15" r="6" fill="#f38ba8"/>
+  <circle cx="40" cy="15" r="6" fill="#f9e2af"/>
+  <circle cx="60" cy="15" r="6" fill="#a6e3a1"/>
+
+  <!-- Header bar -->
+  <rect class="header-bg" x="10" y="35" width="780" height="30" rx="6"/>
+  <text class="terminal title" x="25" y="55">NovaKit CLI v0.1.6</text>
+  <text class="terminal text-dim" x="180" y="55">│</text>
+  <text class="terminal text-blue" x="200" y="55">claude-sonnet-4-5</text>
+  <text class="terminal text-dim" x="340" y="55">│</text>
+  <text class="terminal text-green" x="360" y="55">● auto</text>
+  <text class="terminal text-dim" x="420" y="55">│</text>
+  <text class="terminal text-mauve" x="440" y="55">Agent Mode</text>
+
+  <!-- User message -->
+  <text class="terminal text-blue" x="25" y="95">You:</text>
+  <text class="terminal text" x="60" y="95">Create a validateEmail function in TypeScript</text>
+
+  <!-- AI response -->
+  <text class="terminal text-pink" x="25" y="130">◆ NovaKit:</text>
+  <text class="terminal text" x="25" y="155">I'll create a TypeScript function to validate email addresses.</text>
+
+  <!-- File creation notice -->
+  <text class="terminal text-yellow" x="25" y="185">📝 Writing src/utils/validate-email.ts</text>
+
+  <!-- Code block background -->
+  <rect class="code-bg" x="25" y="200" width="750" height="180"/>
+
+  <!-- Code content -->
+  <text class="terminal text-dim" x="35" y="225">/**</text>
+  <text class="terminal text-dim" x="35" y="245"> * Validates an email address format</text>
+  <text class="terminal text-dim" x="35" y="265"> */</text>
+  <text class="terminal text-mauve" x="35" y="285">export function</text>
+  <text class="terminal text-blue" x="145" y="285">validateEmail</text>
+  <text class="terminal text" x="250" y="285">(email: string): boolean {</text>
+  <text class="terminal text-mauve" x="55" y="305">const</text>
+  <text class="terminal text" x="100" y="305">emailRegex = </text>
+  <text class="terminal text-yellow" x="195" y="305">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</text>
+  <text class="terminal text" x="415" y="305">;</text>
+  <text class="terminal text-mauve" x="55" y="325">return</text>
+  <text class="terminal text" x="105" y="325">emailRegex.test(email.trim());</text>
+  <text class="terminal text" x="35" y="345">}</text>
+
+  <!-- Success messages -->
+  <text class="terminal text-green" x="25" y="405">✓ Created src/utils/validate-email.ts</text>
+  <text class="terminal text-dim" x="25" y="425">💾 Checkpoint saved • Press Esc+Esc to rewind</text>
+
+  <!-- Input area -->
+  <rect fill="#313244" x="10" y="445" width="780" height="45" rx="6"/>
+  <text class="terminal text-dim" x="25" y="472">⌨  Type a message, @ to attach files, / for commands</text>
+  <rect class="cursor" x="470" y="460" width="8" height="16"/>
+
+  <!-- Footer hints -->
+  <text class="terminal text-dim" x="560" y="472">Tab: modes │ Ctrl+L: model</text>
+</svg>

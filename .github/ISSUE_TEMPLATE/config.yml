@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://novakit.ai/docs/cli
+    about: Check the docs before opening an issue
+  - name: Discussions
+    url: https://github.com/omer-yld/novakit-cli-public/discussions
+    about: Ask questions, share ideas, show your workflows
