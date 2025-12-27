@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2025-12-27
+
 ### Added
 - **Task Management Tool (`todos`)**: AI can track progress on complex, multi-step tasks
   - Collapsible TodoPanel UI component (toggle with `Alt+T`)
@@ -149,11 +151,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Memory system (global and project-level)
 - Configuration system (global and project)
 
-[Unreleased]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.6...HEAD
-[0.1.6]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.5...v0.1.6
-[0.1.5]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/omer-yld/novakit-cli-public/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/omer-yld/novakit-cli-public/releases/tag/v0.1.0
+[Unreleased]: https://github.com/omer-yld/novakit-cli/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/omer-yld/novakit-cli/compare/v0.1.5...v0.1.7
+[0.1.5]: https://github.com/omer-yld/novakit-cli/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/omer-yld/novakit-cli/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/omer-yld/novakit-cli/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/omer-yld/novakit-cli/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/omer-yld/novakit-cli/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/omer-yld/novakit-cli/releases/tag/v0.1.0
