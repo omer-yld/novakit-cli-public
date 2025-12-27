@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Task Management Tool (`todos`)**: AI can track progress on complex, multi-step tasks
+  - Collapsible TodoPanel UI component (toggle with `Alt+T`)
+  - Status tracking: pending, in_progress, completed
+  - Per-session persistence (todos auto-load when returning to a session)
+  - Commands: `/loadtodos`, `/cleartodos`, `/todos-toggle`
+
+- **Automated Subagent Spawning (`spawn_agent`)**: AI can now automatically spawn specialized agents
+  - **Explorer Agent**: Deep codebase exploration and understanding
+  - **Planner Agent**: Implementation planning before coding
+  - **Background Agent**: Long-running tasks that don't block chat
+  - **Reviewer Agent**: Code review after implementation
+  - Agents run in background by default (use `wait: true` for foreground)
+  - Monitor with `/tasks`, kill with `/task-kill`
+
+### Changed
+- Subagents now run in background by default instead of blocking
+- Enhanced tool display in UI shows agent type being spawned (e.g., "Spawn Explorer")
+
 ## [0.1.6] - 2025-12-26
 
 ### Added

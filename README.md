@@ -120,6 +120,11 @@ Spawn parallel agents for concurrent work:
 
 Up to 3 concurrent background tasks.
 
+The AI can also automatically spawn specialized agents:
+- **Explorer** — Deep codebase exploration
+- **Planner** — Implementation planning
+- **Reviewer** — Code review after changes
+
 ### MCP Integration
 
 Extend with Model Context Protocol servers:
@@ -188,6 +193,7 @@ novakit doctor                  # Run diagnostics
 | `Esc Esc` | Rewind to checkpoint |
 | `Tab` | Cycle approval modes |
 | `Shift+Tab` | Cycle tool modes (Agent/Review/Plan) |
+| `Alt+T` | Toggle task panel |
 | `@` | Attach file |
 | `#` | Save/attach memory |
 
@@ -253,6 +259,8 @@ NovaKit CLI includes 15+ built-in tools:
 **Memory:** `save_memory`, `read_memory`
 
 **Vision:** `vision` (analyze images)
+
+**Task Management:** `todos` (track multi-step tasks), `spawn_agent` (automated subagents)
 
 ## IDE Extensions
 
