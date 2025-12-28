@@ -1208,6 +1208,341 @@ NovaKit collects anonymous usage data to improve the product. This is completely
 novakit config set telemetryEnabled false
 ```
 
+## Usage Examples & Use Cases
+
+### Daily Development Workflows
+
+#### Starting a New Feature
+```bash
+# Start with read-only mode to explore first
+novakit chat -a read-only
+> "Explain how authentication works in this codebase"
+> "What files would I need to modify to add a logout feature?"
+
+# Once you understand, switch to auto mode (Tab key or restart)
+novakit chat
+> "Add a logout button to the header component"
+```
+
+#### Bug Fixing
+```bash
+# Attach the error log or screenshot
+novakit chat
+> @error.log "Fix this error"
+
+# Or describe the issue
+> "The login form submits twice when clicking the button"
+```
+
+#### Code Review
+```bash
+# Use read-only mode to safely explore changes
+novakit chat -a read-only
+> "Review the changes in src/auth/*.ts for security issues"
+
+# Or use Review Mode for batch reviewing AI changes
+# Press Shift+Tab to switch to Review Mode
+```
+
+#### Refactoring
+```bash
+novakit chat
+> "Refactor the UserService class to use dependency injection"
+> "Extract the validation logic from UserController into a separate module"
+```
+
+### Automation & Scripting
+
+#### CI/CD Integration
+```bash
+# Headless mode for automated pipelines
+novakit chat -p "Fix any TypeScript errors in src/" --headless -a full
+
+# One-shot commands for scripts
+novakit chat -p "Generate a changelog from recent commits" --headless
+```
+
+#### Batch Operations
+```bash
+# Use full approval mode for trusted batch operations
+novakit chat -a full
+> "Add JSDoc comments to all exported functions in src/utils/"
+> "Update all imports from 'lodash' to use named imports"
+```
+
+### Learning & Exploration
+
+#### Understanding a New Codebase
+```bash
+novakit chat -a read-only
+> "Give me an overview of this project's architecture"
+> "What are the main entry points?"
+> "How does data flow from the API to the UI?"
+```
+
+#### Learning Patterns
+```bash
+> "Explain the error handling pattern used in this codebase"
+> "Show me examples of how tests are structured here"
+```
+
+## Best Practices
+
+### 1. Start in Read-Only Mode for Unfamiliar Code
+
+```bash
+# Safe exploration - no accidental changes
+novakit chat -a read-only
+```
+
+**Why:** Prevents accidental modifications while you understand the codebase. Switch to `auto` mode once you're ready to make changes.
+
+### 2. Use NOVAKIT.md for Project Context
+
+Create a `NOVAKIT.md` in your project root:
+
+```markdown
+# Project: My App
+
+## Architecture
+- React frontend with TypeScript
+- Express backend with PostgreSQL
+- Redis for session management
+
+## Conventions
+- Use functional components with hooks
+- All API responses follow { data, error, meta } format
+- Database column names use snake_case
+
+## Do NOT modify
+- src/legacy/ (deprecated, scheduled for removal)
+- migrations/ (use CLI to generate new migrations)
+
+## Testing
+- Run `pnpm test` before committing
+- Integration tests require `docker-compose up -d`
+```
+
+**Why:** The AI reads this context on every request, ensuring consistent understanding of your project's standards.
+
+### 3. Build the Vector Index for Large Codebases
+
+```bash
+novakit index build
+```
+
+**Why:** Semantic search helps the AI find relevant code even when you don't know exact file names or function names.
+
+### 4. Use Sessions for Complex Tasks
+
+```bash
+# Name your sessions for easy resumption
+novakit chat
+# Work on a feature...
+
+# Later, resume where you left off
+novakit session list
+novakit chat -r <session-id>
+```
+
+**Why:** Sessions preserve context, so the AI remembers previous discussions and decisions.
+
+### 5. Use Background Tasks for Long Operations
+
+```bash
+# Don't block your main session
+/spawn Run all tests and fix any failures
+/spawn Generate API documentation
+
+# Continue working while tasks run
+/tasks  # Check progress
+```
+
+**Why:** Background tasks let you stay productive while the AI handles time-consuming operations.
+
+### 6. Leverage Checkpoints Before Major Changes
+
+```bash
+# Create a checkpoint before risky changes
+/checkpoint
+
+# If something goes wrong
+/rewind
+# Or double-press Escape
+```
+
+**Why:** Checkpoints provide a safety net for reverting multiple file changes at once.
+
+### 7. Use Specific, Actionable Prompts
+
+```
+GOOD: "Add input validation to the signup form: email must be valid,
+       password must be 8+ characters with one number"
+
+BAD:  "Make the form better"
+```
+
+**Why:** Specific prompts lead to predictable results. Vague prompts may produce unexpected changes.
+
+### 8. Review Changes Before Committing
+
+```bash
+# Always check what changed
+/diff
+git diff
+
+# Use undo if needed
+ctrl+z  # or /undo
+```
+
+**Why:** Even in `full` approval mode, reviewing changes before committing ensures quality.
+
+## Common Pitfalls & What to Avoid
+
+### 1. Don't Use Full Mode on Untrusted Projects
+
+```bash
+# RISKY: Auto-approves everything including shell commands
+novakit chat -a full  # in an unfamiliar codebase
+```
+
+**Better:** Start with `auto` mode and upgrade to `full` only when you trust the operations.
+
+### 2. Don't Ignore Context Warnings
+
+When you see high context usage (80%+):
+```bash
+# Compact the session to free up context
+/compact
+```
+
+**Why:** Running out of context causes the AI to lose earlier conversation details, leading to inconsistent responses.
+
+### 3. Don't Skip Reading the Suggested Changes
+
+```bash
+# The AI shows you what it's about to do - READ IT
+# [edit] src/auth/login.ts
+# - const token = jwt.sign(user)
+# + const token = jwt.sign(user, { expiresIn: '24h' })
+```
+
+**Why:** Blindly accepting changes can introduce bugs or security issues.
+
+### 4. Don't Forget to Save Memories for Important Context
+
+```bash
+# Save project-specific knowledge
+#api-format All API responses use { success, data, error } format
+#auth-flow Authentication uses JWT with refresh tokens
+```
+
+**Why:** Memories persist across sessions, so you don't need to re-explain project conventions.
+
+### 5. Don't Leave Sensitive Data in Sessions
+
+Sessions are stored locally. If you've discussed sensitive information:
+
+```bash
+# Delete the session when done
+novakit session delete <session-id>
+```
+
+### 6. Don't Run Without Testing After Changes
+
+```bash
+# Always verify changes work
+> "Run the tests to make sure nothing broke"
+
+# Or spawn a background task
+/spawn Run tests and report any failures
+```
+
+### 7. Don't Overload a Single Prompt
+
+```bash
+# TOO MUCH at once
+> "Add authentication, implement the dashboard, set up the database,
+   write tests, add documentation, and deploy to production"
+
+# BETTER: Break into steps
+> "Add user authentication with JWT"
+# Wait for completion
+> "Implement the user dashboard"
+# And so on...
+```
+
+**Why:** Complex prompts can lead to partial implementations or missed requirements.
+
+### 8. Don't Forget About .novakitignore
+
+```gitignore
+# .novakitignore
+secrets/
+*.env*
+credentials/
+private/
+```
+
+**Why:** Prevents the AI from reading or accidentally exposing sensitive files.
+
+## Tips & Tricks
+
+### Quick Mode Switching
+
+- `Tab` - Cycle approval modes (read-only → auto → full)
+- `Shift+Tab` - Cycle tool modes (Agent → Review → Plan)
+
+### Efficient File Attachment
+
+```bash
+# Attach files with context
+@src/auth/login.ts "Fix the token expiry issue"
+@package.json @tsconfig.json "Update TypeScript to version 5"
+```
+
+### Multi-Line Prompts
+
+```bash
+# Press Ctrl+N to insert newlines
+> First line of my prompt
+  Second line with more context  # Ctrl+N before this
+  Third line with requirements
+```
+
+### Quick Commands
+
+```bash
+# Type / to open command palette with fuzzy search
+/com  # matches /compact, /commit
+/sw   # matches /switch-model
+```
+
+### Star Your Favorite Models
+
+```bash
+# Press * in the model selector to star/unstar
+# Starred models appear at the top
+ctrl+l → * → Enter
+```
+
+### Export Sessions for Documentation
+
+```bash
+# Export as markdown for documentation
+novakit session export <id> --format markdown > feature-implementation.md
+
+# Export as JSON for analysis
+novakit session export <id> --format json > session.json
+```
+
+### Use Glob Patterns in Questions
+
+```bash
+> "Review all test files in src/**/*.test.ts"
+> "Find any TODO comments in src/components/*.tsx"
+```
+
 ## Troubleshooting
 
 ### Run Diagnostics
