@@ -2,19 +2,38 @@
 
 All notable changes to NovaKit CLI will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.8] - 2025-12-28
+
+### Improved
+- **Performance & Flickering Elimination**: Major rendering optimizations for smoother TUI experience
+  - Adaptive streaming throttle (16-80ms) that adjusts based on chunk arrival rate
+  - Isolated spinner component in StatusBar - animations don't trigger parent re-renders
+  - Removed thinking message rotation (static "Thinking..." for less re-renders)
+  - Added React.memo to Input, StatusBar, and Markdown components
+  - LRU cache (50 entries) for parsed markdown content
+  - Change detection to skip redundant state updates
+  - `clearStreamingBuffers()` to cancel pending flushes at end of stream
+
+### Fixed
+- TypeScript errors in Markdown.tsx (Shiki language types, markedTerminal options)
+- Flickering when typing in chat input
+- Flickering after stream completion
+
 ## [0.1.7] - 2025-12-27
 
 ### Added
-- **Task Management Tool (`todos`)**: AI can track progress on complex, multi-step tasks
+- **Task Management Tool (`todos`)**: Track progress on complex, multi-step tasks
+  - Array-based API similar to Claude Code's TodoWrite
+  - Per-session todo persistence (todos auto-load when returning to a session)
   - Collapsible TodoPanel UI component (toggle with `Alt+T`)
   - Status tracking: pending, in_progress, completed
-  - Per-session persistence (todos auto-load when returning to a session)
   - Commands: `/loadtodos`, `/cleartodos`, `/todos-toggle`
+  - Event-driven UI sync for real-time updates
 
 - **Automated Subagent Spawning (`spawn_agent`)**: AI can now automatically spawn specialized agents
   - **Explorer Agent**: Deep codebase exploration and understanding
@@ -23,135 +42,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Reviewer Agent**: Code review after implementation
   - Agents run in background by default (use `wait: true` for foreground)
   - Monitor with `/tasks`, kill with `/task-kill`
+  - Each agent type has specialized system prompts
 
 ### Changed
 - Subagents now run in background by default instead of blocking
 - Enhanced tool display in UI shows agent type being spawned (e.g., "Spawn Explorer")
+- Improved result summaries for `spawn_agent` and `todos` tools
 
-## [0.1.6] - 2025-12-26
+## [0.1.5] - 2025-12-26
 
 ### Added
-- Background tasks (subagents) with `/spawn` command - run up to 3 parallel agents
-- Subagent manager with configurable approval modes
-- System prompts framework for custom agent behaviors
-- Enhanced `apply_patch` tool for complex multi-file modifications
-- GitHub Copilot OAuth device flow authentication
-- Dynamic version display in status bar
-- Z.ai provider support (GLM-4.7 models)
+- **Subagent manager**: Background task execution with approval mode system
+  - Approval modes: read-only, auto, and full access
+  - Task spawning, monitoring, and cleanup functionality
+  - Enhanced permission checks based on approval levels
+- **System prompts framework**: Configurable prompt versions for different behaviors
+  - Current and enhanced prompt variants
+  - Metadata and token estimation support
+- **Enhanced apply-patch tool**: Improved multi-file patch application
+  - Better format support and error handling
+  - Unified diff format compatibility
+
+## [0.1.4] - 2025-12-25
+
+### Added
+- Dynamic version display in Header component reflecting package version
+
+## [0.1.3] - 2025-12-25
+
+### Added
+- GitHub Copilot OAuth flow in onboarding process
+- Support for GitHub Copilot as an AI provider
+
+## [0.1.2] - 2025-12-25
+
+### Added
+- Enhanced help command with detailed keyboard shortcuts
+- Common commands reference in help output
 
 ### Changed
-- Improved streaming response handling for better UX
-- Better error messages for authentication failures
-- Reduced memory usage for long sessions
+- Removed deprecated files
+- Updated package dependencies
 
-### Fixed
-- Session compaction now preserves important context
-- Memory leak in long-running sessions
-- Provider switching no longer requires restart
-
-## [0.1.5] - 2025-12-20
-
-### Added
-- MCP (Model Context Protocol) server integration
-- Custom commands via `~/.novakit/commands.json`
-- Custom agents via `~/.novakit/agents.json`
-- Tool whitelisting per session with `/tools` command
-- Semantic code search with vector indexing (LanceDB)
-- `vector_search` tool for intelligent context retrieval
+## [0.1.1] - 2025-12-24
 
 ### Changed
-- Upgraded to latest OpenRouter model catalog
-- Improved checkpoint storage efficiency (50% reduction)
-- Better markdown rendering with syntax highlighting
+- Updated repository owner to omer-yld
 
-### Fixed
-- LSP hover info not displaying for Python files
-- Review mode not batching all changes correctly
-- Config file permissions on Windows
-
-## [0.1.4] - 2025-12-15
+## [0.1.0] - 2025-12-24
 
 ### Added
-- LSP integration with 4 tools:
-  - `lsp_goto_definition` - Navigate to symbol definition
-  - `lsp_find_references` - Find all usages
-  - `lsp_hover` - Get type info and documentation
-  - `lsp_diagnostics` - Compiler errors and linting
-- Review mode for batch change approval (`Shift+Tab`)
-- Plan mode for read-only exploration
-- Default LSP servers for TypeScript, Python, Go, Rust
+- Initial release of NovaKit CLI
+- Interactive TUI chat interface with Ink
+- Multi-provider support (OpenAI, Anthropic, Google, OpenRouter, GitHub Copilot)
+- Tool execution system (file read/write, bash, search)
+- Vector index for semantic code search using LanceDB
+- Auto-indexer with file watching
+- MCP (Model Context Protocol) client and server management
+- Session management with save/resume capability
+- Command palette with category filtering
+- Git integration (commit, diff modals)
+- Snippet picker UI
+- Markdown rendering with syntax highlighting
+- Onboarding flow for first-time users with API key validation
+- Provider authentication and configuration
+- Path safety checks with `allowedReadRoots` configuration
+- CI and release workflows
+- Homebrew formula support
 
-### Changed
-- Improved markdown rendering in terminal
-- Better syntax highlighting for 20+ languages
-- Faster startup time (30% improvement)
-
-### Fixed
-- File watching causing high CPU usage on large repos
-- Undo/redo not working after provider switch
-
-## [0.1.3] - 2025-12-10
-
-### Added
-- Checkpoints and instant rewind (`Esc+Esc`)
-- Manual checkpoint creation with `/checkpoint`
-- Session persistence and resume
-- Favorite models (star with `*` in model selector)
-- `novakit doctor` diagnostic command
-- Shell completions for bash, zsh, fish
-
-### Changed
-- Improved session compaction algorithm
-- Better error recovery in agent loop
-
-### Fixed
-- File watching causing high CPU usage
-- Undo/redo not working after provider switch
-- Memory files not loading on startup
-
-## [0.1.2] - 2025-12-05
-
-### Added
-- GitHub Copilot provider support (OAuth flow)
-- Groq provider for fast inference
-- OpenRouter provider with 200+ models
-- Custom OpenAI-compatible endpoint support
-- `novakit provider add` command with presets
-
-### Changed
-- Reduced memory footprint for large codebases
-- Improved token counting accuracy
-
-### Fixed
-- API key storage permissions on Linux
-- Model selection not persisting across sessions
-
-## [0.1.1] - 2025-12-01
-
-### Added
-- Multi-provider support (OpenAI, Anthropic)
-- Basic file editing tools (read, write, edit)
-- Session management (list, resume, export)
-- Glob and grep tools for code search
-- Web search and fetch tools
-
-### Fixed
-- Initial release bug fixes
-- Terminal rendering issues on Windows
-
-## [0.1.0] - 2025-11-25
-
-### Added
-- Initial release
-- Interactive TUI chat interface with Ink/React
-- Agent mode with full tool access
-- File read/write/edit tools
-- Bash command execution with safety filters
-- Vision tool for image analysis
-- Memory system (global and project-level)
-- Configuration system (global and project)
-
-[Unreleased]: https://github.com/omer-yld/novakit-cli/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/omer-yld/novakit-cli/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/omer-yld/novakit-cli/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/omer-yld/novakit-cli/compare/v0.1.5...v0.1.7
 [0.1.5]: https://github.com/omer-yld/novakit-cli/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/omer-yld/novakit-cli/compare/v0.1.3...v0.1.4

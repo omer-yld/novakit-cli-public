@@ -1,301 +1,1252 @@
 # NovaKit CLI
 
-> AI coding agent in your terminal. Multi-provider support, checkpoints & instant rewind, semantic code search.
+An AI-powered coding agent for the terminal. NovaKit brings intelligent code assistance directly to your command line with support for multiple LLM providers, persistent sessions, semantic code search, and extensible tools.
 
-[![npm version](https://img.shields.io/npm/v/novakit-cli.svg)](https://www.npmjs.com/package/novakit-cli)
-[![Downloads](https://img.shields.io/npm/dm/novakit-cli.svg)](https://www.npmjs.com/package/novakit-cli)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
-[![License](https://img.shields.io/badge/license-Proprietary-blue.svg)](LICENSE.md)
+## Features
 
-<p align="center">
-  <img src="assets/novakit-cli.png" alt="NovaKit CLI preview" width="800">
-</p>
-
-## Why NovaKit CLI?
-
-- **10x more tokens** than competitors at half the price
-- **Multi-provider support** — Use your own API keys or our bundled access
-- **Checkpoints & instant rewind** — Press `Esc+Esc` to undo any change
-- **Semantic code search** — Vector-indexed codebase for intelligent context
-- **LSP integration** — Go-to-definition, find references, hover info
-- **Background tasks** — Spawn parallel agents for concurrent work
+- **Multi-Provider Support** - Use OpenAI, Anthropic, GitHub Copilot, OpenRouter, Groq, and more
+- **Interactive TUI** - Rich terminal interface with markdown rendering and alternate screen buffer
+- **Agent Mode** - AI with access to file operations, shell commands, and web search
+- **Approval Modes** - Control agent autonomy: read-only, auto (default), or full
+- **Background Tasks (Subagents)** - Spawn parallel agents for concurrent work
+- **Session Management** - Resume conversations, auto-compact on context threshold, export transcripts
+- **Semantic Code Search** - Vector-indexed codebase for intelligent context retrieval
+- **LSP Integration** - Go-to-definition, find references, hover info, and diagnostics
+- **Memory System** - Persistent memories across sessions
+- **MCP Integration** - Extend capabilities with Model Context Protocol servers
+- **Custom Commands & Agents** - Define your own slash commands and specialized agents
+- **Favorite Models** - Star frequently used models for quick access
+- **IDE Extensions** - JSON-RPC server mode for VS Code and JetBrains integration
+- **Custom Ignore File** - `.novakitignore` for project-specific file exclusions
 
 ## Installation
 
 ```bash
-npm install -g novakit-cli
-```
+# Install globally
+npm install -g @novakit/cli
 
-Requires Node.js 18.0.0 or higher.
+# Or with pnpm
+pnpm add -g @novakit/cli
+```
 
 ## Quick Start
 
 ```bash
-# Option 1: Use GitHub Copilot (free with GitHub account)
-novakit auth login --provider github-copilot
-
-# Option 2: Use your own API key
-novakit provider add openai --api-key YOUR_KEY
-
-# Option 3: Use NovaKit bundled access (paid plans)
-novakit auth login
-
-# Start coding
+# Start the TUI (opens provider connect if not authenticated)
 novakit
+
+# Or explicitly start chat
+novakit chat
+
+# With a specific model
+novakit chat -m gpt-4o
+
+# Resume a previous session
+novakit -r <session-id>
 ```
 
-## Features
+## Keyboard Shortcuts
 
-### Multi-Provider Support
+### Global Shortcuts
 
-Connect to any AI provider with your own keys:
+| Shortcut | Action |
+|----------|--------|
+| `ctrl+l` | Switch model |
+| `ctrl+n` | New session |
+| `ctrl+o` | Connect provider |
+| `ctrl+c` | Cancel current operation (2x to quit) |
+| `ctrl+w` | Quit immediately |
+| `ctrl+z` | Undo last file change |
+| `ctrl+y` | Redo last undone change |
+| `ctrl+x` | Toggle expand/collapse messages |
+| `Esc Esc` | Rewind to last checkpoint |
+| `Tab` | Cycle approval mode (read-only → auto → full) |
+| `Shift+Tab` | Cycle modes (Agent → Review → Plan) |
+| `Alt+T` | Toggle task panel (show/hide todos) |
+| `/` | Open command palette |
+| `@` | Attach file |
+| `#` | Save/attach memory |
+| `$` | Save/insert snippet |
+| `*` | Toggle favorite (in model selector) |
 
-| Provider | Auth | Default Model |
-|----------|------|---------------|
-| OpenAI | API Key | gpt-4o-mini |
-| Anthropic | API Key | claude-sonnet-4-5 |
-| GitHub Copilot | OAuth | grok-code-fast-1 |
-| OpenRouter | API Key | gpt-4o-mini |
-| Groq | API Key | kimi-k2-instruct |
-| Google AI | API Key | gemini-2.0-flash |
-| NovaKit | API Key | gpt-oss-120b |
+### Input Shortcuts
 
-Or add any OpenAI-compatible endpoint (Ollama, local models, etc.):
+| Shortcut | Action |
+|----------|--------|
+| `ctrl+u` | Clear input line |
+| `Escape` | Clear input (if not empty) |
+| `ctrl+a` | Jump to beginning of line |
+| `ctrl+e` | Jump to end of line |
+| `ctrl+n` | Insert new line (multiline input) |
+| `↑` / `↓` | Navigate input history |
+| `←` / `→` | Move cursor |
+| `ctrl+shift+v` | Paste text (terminal standard) |
+
+## Commands
+
+### Authentication
 
 ```bash
-novakit provider add my-local --base-url http://localhost:11434/v1
+# Login with API key
+novakit auth login
+novakit auth login --provider anthropic
+
+# Check auth status
+novakit auth status
+
+# Logout
+novakit auth logout
+novakit auth logout --provider openai
 ```
 
-### Three Approval Modes
-
-Control how much autonomy the agent has:
-
-| Mode | Description | Shortcut |
-|------|-------------|----------|
-| **read-only** | Only exploration tools (read, search, analyze) | `Tab` |
-| **auto** | Confirms file changes and shell commands (default) | `Tab` |
-| **full** | Auto-approve all operations | `Tab` or `--yolo` |
-
-### Checkpoints & Undo/Redo
-
-Every file change creates an automatic checkpoint:
-
-- `Esc Esc` — Instant rewind to last checkpoint
-- `Ctrl+Z` — Undo last change
-- `Ctrl+Y` — Redo
-- `/checkpoint` — Create manual checkpoint
-- `/checkpoint-list` — View all checkpoints
-
-### Semantic Code Search
-
-Vector-indexed codebase for intelligent context retrieval:
+### Chat
 
 ```bash
-novakit index build              # Index your codebase
-novakit index search "auth flow" # Search semantically
+# Start interactive chat
+novakit chat
+
+# Use specific model
+novakit chat -m claude-sonnet-4-20250514
+
+# Resume previous session
+novakit chat -r <session-id>
+
+# One-shot prompt
+novakit chat -p "Explain this codebase"
+
+# Set approval mode
+novakit chat -a read-only    # Read-only mode (exploration only)
+novakit chat -a auto         # Auto mode (default, confirmations for changes)
+novakit chat -a full         # Full mode (auto-approve all operations)
+novakit chat --yolo          # Alias for --approval-mode full
+
+# Skip confirmations (legacy, same as --yolo)
+novakit chat --no-confirm
+
+# Headless mode (for automation/scripts)
+novakit chat -p "Fix the bug" --headless
 ```
 
-The agent automatically uses the index to find relevant code.
-
-### LSP Integration
-
-Built-in Language Server Protocol support:
-
-- **Go-to-definition** — Navigate to symbol definitions
-- **Find references** — Find all usages of a symbol
-- **Hover info** — Get type information and documentation
-- **Diagnostics** — Compiler errors and linting issues
-
-Supports: TypeScript, JavaScript, Python, Go, Rust, and more.
-
-### Background Tasks (Subagents)
-
-Spawn parallel agents for concurrent work:
-
-```
-/spawn Write unit tests for the auth module
-/spawn Document the API endpoints
-/tasks                    # Monitor running tasks
-```
-
-Up to 3 concurrent background tasks.
-
-The AI can also automatically spawn specialized agents:
-- **Explorer** — Deep codebase exploration
-- **Planner** — Implementation planning
-- **Reviewer** — Code review after changes
-
-### MCP Integration
-
-Extend with Model Context Protocol servers:
+### Providers
 
 ```bash
-# Configure in ~/.novakit/mcp.json
-novakit mcp connect github
-/mcp-status              # Check connected servers
+# List configured providers
+novakit provider list
+
+# Show available presets
+novakit provider presets
+
+# Add provider from preset
+novakit provider add anthropic --preset anthropic
+
+# Add custom provider
+novakit provider add my-provider \
+  --endpoint https://api.example.com/v1 \
+  --protocol openai \
+  --model gpt-4
+
+# Switch active provider
+novakit provider use anthropic
+
+# Remove provider
+novakit provider remove openai
 ```
 
-### Custom Commands & Agents
+### Sessions
 
-Define your own slash commands and specialized agents:
+```bash
+# List sessions
+novakit session list
+novakit session list --all
+
+# Resume session
+novakit session resume <session-id>
+
+# Rename session
+novakit session rename <session-id> "Feature Implementation"
+
+# Compact session (reduce context)
+novakit session compact <session-id>
+
+# Export session
+novakit session export <session-id> --format markdown
+novakit session export <session-id> --format json
+
+# Delete session
+novakit session delete <session-id>
+```
+
+### Configuration
+
+```bash
+# Show all config
+novakit config list
+
+# Get specific value
+novakit config get defaultModel
+
+# Set value
+novakit config set maxTokens 8192
+novakit config set autoConfirmWrites true
+
+# Initialize project config
+novakit config init
+
+# Show config paths
+novakit config path
+
+# Reset to defaults
+novakit config reset
+```
+
+### Index (Semantic Search)
+
+```bash
+# Build vector index
+novakit index build
+
+# Check index status
+novakit index status
+
+# Search codebase
+novakit index search "authentication logic"
+```
+
+### Shell Completions
+
+```bash
+# Bash
+novakit completion bash >> ~/.bashrc
+# Or
+novakit completion bash > /etc/bash_completion.d/novakit
+
+# Zsh
+mkdir -p ~/.zsh/completions
+novakit completion zsh > ~/.zsh/completions/_novakit
+# Add to ~/.zshrc:
+#   fpath=(~/.zsh/completions $fpath)
+#   autoload -Uz compinit && compinit
+
+# Fish
+mkdir -p ~/.config/fish/completions
+novakit completion fish > ~/.config/fish/completions/novakit.fish
+
+
+  # Type novakit and press Tab - shows all commands
+  novakit <Tab>
+  # Shows: auth, chat, config, provider, session, index, doctor, completion, usage
+
+  # Type partial command and Tab to complete
+  novakit pro<Tab>
+  # Completes to: novakit provider
+
+  # Tab again to see subcommands
+  novakit provider <Tab>
+  # Shows: list, add, remove, use, presets
+
+  # Works with options too
+  novakit chat --<Tab>
+  # Shows: --model, --resume, --no-confirm
+
+  # Double Tab shows all options
+  novakit session <Tab><Tab>
+  # Shows: list, resume, rename, compact, export, delete
+```
+
+### Other Commands
+
+```bash
+# Check API quota/usage
+novakit usage
+
+# Run diagnostics
+novakit doctor
+
+# Start server for IDE extensions
+novakit serve
+```
+
+## In-Chat Commands
+
+Type `/` to open the command palette, or use these directly:
+
+| Command | Description |
+|---------|-------------|
+| `/new-session` | Start new session |
+| `/session-list` | List sessions |
+| `/compact` | Summarize conversation to reduce context |
+| `/switch-model` | Switch model |
+| `/provider-connect` | Connect a provider |
+| `/config-global` | Open global config directory |
+| `/config-project` | Open project config directory |
+| `/config-project-init` | Initialize project config |
+| `/index-build` | Build semantic search index |
+| `/index-status` | Show index status |
+| `/memories` | List saved memories |
+| `/commit` | Generate AI commit message |
+| `/diff` | Show git status/diff |
+| `/undo` | Undo last file change |
+| `/redo` | Redo last undone change |
+| `/history` | Show recent file changes |
+| `/tools` | Open Tool Manager (enable/disable tools) |
+| `/tools-list` | List all available tools |
+| `/review` | Toggle Review Mode |
+| `/expand-toggle` | Toggle expand/collapse messages |
+| `/context-init-project` | Create NOVAKIT.md in project |
+| `/context-init-global` | Create ~/.novakit/NOVAKIT.md |
+| `/context-reload` | Reload NOVAKIT.md files |
+| `/context-show` | Show loaded context files |
+| `/checkpoint` | Create manual checkpoint |
+| `/rewind` | Rewind to last checkpoint |
+| `/checkpoint-list` | List saved checkpoints |
+| `/snippets` | List saved snippets |
+| `/mcp-status` | Show MCP server status |
+| `/mcp-connect` | Connect MCP servers |
+| `/mcp-disconnect` | Disconnect MCP servers |
+| `/spawn` | Spawn a background task |
+| `/tasks` | List background tasks |
+| `/task-kill` | Kill a running task |
+| `/task-cleanup` | Remove completed tasks |
+| `/todos-toggle` | Toggle task panel visibility |
+| `/loadtodos` | Load todos from current session |
+| `/cleartodos` | Clear all todos |
+| `/approval-mode` | Cycle approval mode |
+| `/quota` | Show API quota/balance |
+| `/doctor` | Run diagnostics |
+| `/tools` | List available tools |
+| `/usage` | Show token usage |
+| `/context` | Show context status |
+| `/help` | Show keyboard shortcuts |
+| `/quit` | Exit chat |
+
+## Configuration
+
+### Config Locations
+
+| Type | Location |
+|------|----------|
+| Global config | `~/.novakit/config.json` |
+| Project config | `.novakit/config.json` |
+| Credentials | `~/.novakit/credentials.d/` |
+| OAuth tokens | `~/.novakit/oauth/` |
+| Sessions | `~/.novakit/sessions/` |
+| Memories | `~/.novakit/memory/` (global) or `.novakit/memory/` (project) |
+| Vector Index | `.novakit/index/` |
+| Custom Commands | `~/.novakit/commands.json` |
+| Custom Agents | `~/.novakit/agents.json` |
+| MCP Servers | `~/.novakit/mcp.json` |
+| LSP Servers | `~/.novakit/lsp.json` |
+| Checkpoints | `.novakit/checkpoints/` |
+| Context Files | `NOVAKIT.md` (project root) or `~/.novakit/NOVAKIT.md` (global) |
+| Ignore Patterns | `.novakitignore` (project) or `~/.novakit/ignore` (global) |
+
+### Config Hierarchy
+
+- **Global-only settings** (always from `~/.novakit/config.json`):
+  - `favoriteModels` - Your starred models
+  - `providers` - Provider configurations
+  - `currentProvider` - Active provider
+
+- **Project-overridable settings** (project config overrides global):
+  - `defaultModel`, `maxTokens`, `maxToolIterations`, etc.
+
+### Config Options
 
 ```json
-// ~/.novakit/commands.json
 {
-  "commands": {
-    "review": {
+  "apiEndpoint": "https://api.anthropic.com/v1",
+  "apiProtocol": "anthropic",
+  "defaultModel": "claude-sonnet-4-20250514",
+  "maxTokens": 16384,
+  "maxToolIterations": 10,
+  "autoConfirmWrites": false,
+  "showTokenUsage": true,
+  "contextThreshold": 0.9,
+  "autoCompactEnabled": true,
+  "autoSaveEnabled": true,
+  "useVectorIndex": true,
+  "maxContextChunks": 10,
+  "maxContextTokens": 8000,
+  "minContextScore": 0.15,
+  "preferredModels": ["claude-sonnet-4-20250514", "gpt-4o"],
+  "favoriteModels": ["gpt-4o", "claude-sonnet-4-20250514"],
+  "allowedReadRoots": [],
+  "disabledTools": [],
+  "reviewMode": false,
+  "approvalMode": "auto"
+}
+```
+
+#### Key Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `defaultModel` | string | - | Default model to use |
+| `maxTokens` | number | 16384 | Maximum tokens per request |
+| `maxToolIterations` | number | 10 | Max tool calls per response (1-50) |
+| `autoConfirmWrites` | boolean | false | Skip confirmation for file operations |
+| `showTokenUsage` | boolean | true | Display token usage after requests |
+| `contextThreshold` | number | 0.9 | Auto-compact when context usage exceeds this (0-1) |
+| `autoCompactEnabled` | boolean | true | Enable auto-compaction on context threshold |
+| `useVectorIndex` | boolean | true | Enable semantic code search |
+| `maxContextChunks` | number | 10 | Max code chunks to include in context |
+| `maxContextTokens` | number | 8000 | Max tokens for retrieved context |
+| `minContextScore` | number | 0.15 | Minimum relevance score for context chunks |
+| `favoriteModels` | string[] | [] | Models marked as favorites (shown first) |
+| `allowedReadRoots` | string[] | [] | Restrict file access to these paths |
+| `disabledTools` | string[] | [] | Tools disabled by default (use /tools to toggle) |
+| `reviewMode` | boolean | false | Start in Review Mode (batch file changes) |
+| `approvalMode` | string | "auto" | Default approval mode: read-only, auto, or full |
+
+## Supported Providers
+
+### Built-in Presets
+
+| Provider | Protocol | Default Model | Auth Method |
+|----------|----------|---------------|-------------|
+| Anthropic | anthropic | claude-sonnet-4-5-20250929 | API Key |
+| OpenAI | openai | gpt-4o-mini | API Key |
+| GitHub Copilot | openai | gpt-4o | OAuth Device Flow |
+| OpenRouter | openai | openai/gpt-4o-mini | API Key |
+| Groq | openai | moonshotai/kimi-k2-instruct-0905 | API Key |
+| GitHub Models | openai | gpt-4o-mini | API Key |
+| Z.ai | openai | GLM-4.7 | API Key |
+| NovaKit | novakit | openai/gpt-oss-120b | API Key |
+
+### GitHub Copilot
+
+GitHub Copilot uses OAuth device flow for authentication:
+
+1. Select "GitHub Copilot" from provider connect (`ctrl+o`)
+2. A device code will be displayed
+3. Open the verification URL in your browser
+4. Enter the code and authorize
+5. Token is automatically refreshed when expired
+
+### Adding Custom Providers
+
+Any OpenAI-compatible API can be added:
+
+```bash
+novakit provider add ollama \
+  --endpoint http://localhost:11434/v1 \
+  --protocol openai \
+  --model llama3.2
+```
+
+## Model Selector
+
+Press `ctrl+l` to open the model selector:
+
+- **Search** - Type to filter models by name, ID, or provider
+- **Navigate** - Arrow keys to move, Enter to select
+- **Favorite** - Press `*` to star/unstar a model
+- **Connect** - Press `ctrl+o` to add a new provider
+
+Favorite models appear at the top in a dedicated section.
+
+## Agent Tools
+
+The AI agent has access to these tools:
+
+| Tool | Description |
+|------|-------------|
+| `read` | Read file contents with line numbers |
+| `write` | Create new files |
+| `edit` | Modify existing files (string replacement) |
+| `apply_patch` | Apply unified diff patches (create/modify/delete files) |
+| `glob` | Find files by pattern |
+| `grep` | Search file contents with regex |
+| `bash` | Execute shell commands |
+| `list_directory` | List directory contents |
+| `web_search` | Search the web |
+| `web_fetch` | Fetch and analyze web pages |
+| `vector_search` | Semantic code search using embeddings |
+| `vision` | Read and analyze images (PNG, JPG, GIF, WebP) |
+| `multi_tool_use.parallel` | Execute multiple tools in parallel |
+| `save_memory` | Save persistent memories |
+| `read_memory` | Retrieve saved memories |
+| `lsp_goto_definition` | Navigate to symbol definition |
+| `lsp_find_references` | Find all references to a symbol |
+| `lsp_hover` | Get type information and documentation |
+| `lsp_diagnostics` | Get file errors/warnings from LSP server |
+| `todos` | Track progress on multi-step tasks |
+| `spawn_agent` | Spawn specialized subagents (explorer, planner, background, reviewer) |
+
+### Tool Modes
+
+- **Agent Mode** (default) - Full access to all tools including write/edit/bash
+- **Review Mode** - Like Agent but collects file changes for batch review when complete
+- **Plan Mode** - Read-only tools for exploration and planning
+
+Toggle with `Shift+Tab` (cycles: Agent → Review → Plan → Agent).
+
+## Approval Modes
+
+Approval modes control how much autonomy the agent has over tool execution:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `read-only` | Only exploration tools (read, glob, grep, etc.) | Safe exploration, code review |
+| `auto` | Confirmations for file changes and shell commands | Normal development (default) |
+| `full` | Auto-approve all operations | Trusted automation, scripting |
+
+### Changing Approval Mode
+
+**Keyboard:** Press `Tab` to cycle through modes
+
+**Command Palette:** `/approval-mode`
+
+**CLI Flag:**
+```bash
+novakit chat -a read-only
+novakit chat -a auto
+novakit chat -a full
+novakit chat --yolo  # Alias for -a full
+```
+
+**Config:**
+```json
+{
+  "approvalMode": "auto"
+}
+```
+
+### Permission Details
+
+| Tool Category | read-only | auto | full |
+|--------------|-----------|------|------|
+| Read operations (read, glob, grep) | Auto | Auto | Auto |
+| Write operations (write, edit) | Blocked | Confirm | Auto |
+| Shell commands (bash) | Blocked | Confirm | Auto* |
+| MCP tools | Blocked | Confirm | Auto |
+
+*Dangerous bash commands (rm -rf, sudo, etc.) still require confirmation even in full mode.
+
+## Background Tasks (Subagents)
+
+Spawn parallel agents to work on tasks concurrently while you continue in the main session.
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/spawn` | Open spawn mode, then type your task |
+| `/spawn <prompt>` | Spawn a task directly |
+| `/tasks` | List all background tasks with status |
+| `/task-kill` | Kill a running task |
+| `/task-kill <id>` | Kill a specific task by ID |
+| `/task-cleanup` | Remove completed/failed tasks |
+
+### Usage Examples
+
+```bash
+# Spawn a task to run tests in background
+/spawn Run all tests and fix any failures
+
+# Spawn a task to build documentation
+/spawn Generate API documentation for src/api/
+
+# List running tasks
+/tasks
+
+# Kill the only running task
+/task-kill
+
+# Kill a specific task
+/task-kill abc123
+```
+
+### Task Status
+
+| Status | Icon | Description |
+|--------|------|-------------|
+| pending | ⏳ | Task queued, waiting to start |
+| running | 🔄 | Task actively executing |
+| completed | ✅ | Task finished successfully |
+| failed | ❌ | Task encountered an error |
+| cancelled | ⏹️ | Task was manually stopped |
+
+### Notes
+
+- Maximum 3 concurrent tasks by default
+- Tasks inherit the current approval mode
+- Task progress is shown in the status bar
+- Background tasks cannot prompt for confirmations (auto-denied if not in full mode)
+
+## Task Management (Todos)
+
+The AI agent can track progress on complex, multi-step tasks using the `todos` tool. This helps organize work and shows real-time progress.
+
+### Task Panel
+
+A collapsible panel displays current tasks:
+- **Collapsed**: Shows task count and active status in a compact bar
+- **Expanded**: Shows full task list with status indicators
+- **Toggle**: Press `Alt+T` or use `/todos-toggle`
+
+### Status Indicators
+
+| Status | Icon | Description |
+|--------|------|-------------|
+| pending | ○ | Task not yet started |
+| in_progress | ◐ | Currently working on |
+| completed | ● | Task finished |
+
+### When Todos Are Used
+
+The AI automatically uses todos for:
+- **Multi-step tasks**: When a task requires 3+ distinct steps
+- **Complex implementations**: Features requiring multiple files or components
+- **User-provided lists**: When given a numbered or comma-separated list of things to do
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `Alt+T` | Toggle task panel visibility |
+| `/todos-toggle` | Toggle task panel (same as Alt+T) |
+| `/loadtodos` | Reload todos from current session |
+| `/cleartodos` | Clear all todos |
+
+### Session Persistence
+
+Todos are stored per-session and auto-load when resuming a session, so you can pick up where you left off.
+
+## Automated Subagent Spawning
+
+The AI can automatically spawn specialized agents using the `spawn_agent` tool to handle complex tasks autonomously.
+
+### Agent Types
+
+| Type | Use Case | Example |
+|------|----------|---------|
+| **explorer** | Deep codebase exploration | "Find how authentication is implemented" |
+| **planner** | Implementation planning | "Plan how to add caching to the API" |
+| **background** | Long-running tasks | "Run all tests and fix any failures" |
+| **reviewer** | Code review | "Review the changes in src/auth/*.ts" |
+
+### How It Works
+
+1. **Background by default**: Agents run in background so the main conversation continues
+2. **Monitor progress**: Use `/tasks` to check status
+3. **Wait when needed**: Use `wait: true` for tasks where you need the result before continuing (e.g., getting a plan before implementing)
+
+### Examples
+
+```
+# AI spawns explorer to understand codebase
+spawn_agent: {"agent_type": "explorer", "task": "Find all authentication middleware"}
+
+# AI spawns planner and waits for result
+spawn_agent: {"agent_type": "planner", "task": "Plan user profile feature", "wait": true}
+
+# AI spawns reviewer after making changes
+spawn_agent: {"agent_type": "reviewer", "task": "Review changes in src/components/"}
+```
+
+### Agent vs Manual Subagent
+
+| Feature | `spawn_agent` (AI-triggered) | `/spawn` (User-triggered) |
+|---------|------------------------------|---------------------------|
+| Initiated by | AI agent | User command |
+| System prompt | Specialized per agent type | Generic |
+| Default mode | Background | Foreground |
+| Use case | AI autonomy | User delegation |
+
+### Tool Whitelisting
+
+Enable or disable specific tools:
+
+- `/tools` - Open interactive Tool Manager modal
+- `/tools-list` - View all available tools with status
+- Type to filter, Enter/Space to toggle, j/k to navigate
+
+**Config** (`~/.novakit/config.json`):
+```json
+{
+  "disabledTools": ["bash", "write"]
+}
+```
+
+Disabled tools won't be available to the agent until re-enabled.
+
+## Undo/Redo & Checkpoints
+
+NovaKit tracks all file changes and allows you to revert them.
+
+### Quick Undo/Redo
+
+- `ctrl+z` - Undo last file change
+- `ctrl+y` - Redo last undone change
+- `/history` - View recent file changes
+
+### Checkpoints
+
+Checkpoints save the state of modified files for larger rollbacks:
+
+- Automatic checkpoints are created before each file modification
+- `Esc Esc` (double escape) - Quickly rewind to last checkpoint
+- `/checkpoint` - Create a manual checkpoint
+- `/checkpoint-list` - View all checkpoints
+- `/rewind` - Restore the most recent checkpoint
+
+Checkpoints are stored in `.novakit/checkpoints/` (up to 50 per project).
+
+## Context Files (NOVAKIT.md)
+
+Create `NOVAKIT.md` files to provide persistent context to the AI:
+
+### Locations (all are loaded)
+
+1. `~/.novakit/NOVAKIT.md` - Global context (all projects)
+2. `./NOVAKIT.md` - Project root
+3. `./src/NOVAKIT.md` - Subdirectory context
+
+### Example NOVAKIT.md
+
+```markdown
+# Project: E-commerce API
+
+## Architecture
+- Node.js with Express
+- PostgreSQL with Prisma ORM
+- Redis for caching
+
+## Conventions
+- All prices stored in cents (integers)
+- Use snake_case for database columns
+- Use camelCase for JavaScript
+
+## Important
+- Never modify files in `src/legacy/`
+- All API responses use the standard wrapper
+
+@docs/api-reference.md
+```
+
+The `@path/to/file.md` syntax imports content from other markdown files.
+
+Commands:
+- `/context-show` - View loaded context files
+- `/context-reload` - Reload after changes
+
+## Memory System
+
+Save important information that persists across sessions:
+
+```bash
+# In chat, use # prefix to save memories
+#project-context This is a React app using TypeScript...
+
+# Or use the memory picker
+# (type # with empty input to open picker)
+```
+
+Memories are stored as markdown files:
+- Global: `~/.novakit/memory/`
+- Project: `.novakit/memory/`
+
+## Snippets
+
+Save and reuse code snippets:
+
+```bash
+# Save a snippet
+$snippet-name Your code here...
+
+# Insert a snippet (type $ with empty input)
+# Opens snippet picker
+```
+
+Snippets are stored in `~/.novakit/snippets/`.
+
+## Semantic Code Search
+
+Build a vector index of your codebase for intelligent context retrieval:
+
+```bash
+# Build index
+novakit index build
+
+# The agent will automatically use relevant code context
+```
+
+Configuration:
+```json
+{
+  "useVectorIndex": true,
+  "maxContextChunks": 10,
+  "maxContextTokens": 8000,
+  "minContextScore": 0.15
+}
+```
+
+## Custom Commands
+
+Create custom slash commands in `~/.novakit/commands.json`:
+
+```json
+{
+  "commands": [
+    {
+      "id": "review",
+      "name": "Code Review",
+      "description": "Review current file",
       "type": "prompt",
-      "template": "Review this code for security issues: {{input}}"
+      "content": "Review this code for bugs, security issues, and best practices:\n\n{{input}}"
+    },
+    {
+      "id": "test",
+      "name": "Generate Tests",
+      "description": "Generate tests for code",
+      "type": "prompt",
+      "content": "Generate comprehensive tests for:\n\n{{input}}"
+    },
+    {
+      "id": "git-log",
+      "name": "Git Log",
+      "description": "Recent commits",
+      "type": "bash",
+      "content": "git log --oneline -10",
+      "showOutput": true
+    }
+  ]
+}
+```
+
+## Custom Agents
+
+Define specialized agents in `~/.novakit/agents.json`:
+
+```json
+{
+  "agents": [
+    {
+      "id": "reviewer",
+      "name": "Code Reviewer",
+      "icon": "🔍",
+      "description": "Code review specialist",
+      "systemPrompt": "You are an expert code reviewer. Focus on bugs, security, performance, and best practices.",
+      "model": "claude-sonnet-4-20250514",
+      "includeContext": true
+    },
+    {
+      "id": "architect",
+      "name": "System Architect",
+      "icon": "🏗️",
+      "description": "System design expert",
+      "systemPrompt": "You are a software architect. Help design scalable, maintainable systems.",
+      "tools": ["read", "glob", "grep", "list_directory"]
+    }
+  ]
+}
+```
+
+Activate agents from the command palette (`/`).
+
+## MCP Integration
+
+Connect Model Context Protocol servers for extended capabilities.
+
+Configure in `~/.novakit/mcp.json`:
+
+```json
+{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "your-token"
+      }
     }
   }
 }
 ```
 
-## Commands
+Use `/mcp-status`, `/mcp-connect`, `/mcp-disconnect` to manage servers.
 
-### CLI Commands
+## LSP Integration
 
-```bash
-novakit                         # Start interactive chat
-novakit chat -m claude-sonnet   # Use specific model
-novakit chat -p "Fix the bug"   # One-shot prompt
-novakit session list            # List sessions
-novakit session resume <id>     # Resume a session
-novakit config list             # Show configuration
-novakit index build             # Build vector index
-novakit doctor                  # Run diagnostics
+NovaKit integrates with Language Server Protocol (LSP) servers for intelligent code understanding.
+
+### LSP Tools
+
+The AI agent can use these LSP-powered tools:
+
+| Tool | Description |
+|------|-------------|
+| `lsp_goto_definition` | Navigate to where a symbol is defined |
+| `lsp_find_references` | Find all usages of a symbol across the codebase |
+| `lsp_hover` | Get type signatures and documentation |
+| `lsp_diagnostics` | Get compiler errors, warnings, and linting issues |
+
+### Configuration
+
+Configure LSP servers in `~/.novakit/lsp.json`:
+
+```json
+{
+  "servers": [
+    {
+      "name": "typescript",
+      "languages": [".ts", ".tsx", ".js", ".jsx"],
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    {
+      "name": "python",
+      "languages": [".py", ".pyi"],
+      "command": "pylsp",
+      "args": [],
+      "enabled": true
+    }
+  ],
+  "autoDetect": true,
+  "autoStart": true
+}
 ```
 
-### In-Chat Commands
+### Default Servers
 
-| Command | Description |
-|---------|-------------|
-| `/help` | Show all commands |
-| `/switch-model` | Change AI model |
-| `/new-session` | Start fresh session |
-| `/undo`, `/redo` | Undo/redo changes |
-| `/checkpoint` | Create checkpoint |
-| `/rewind` | Rewind to checkpoint |
-| `/spawn <prompt>` | Start background task |
-| `/tools` | Manage available tools |
-| `/memories` | View saved memories |
-| `/config-project-init` | Create project config |
+| Language | Server | File Extensions |
+|----------|--------|-----------------|
+| TypeScript/JavaScript | `typescript-language-server` | `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs` |
+| Python | `pylsp` | `.py`, `.pyi` |
+| Go | `gopls` | `.go` |
+| Rust | `rust-analyzer` | `.rs` |
+| JSON | `vscode-json-language-server` | `.json`, `.jsonc` |
+| YAML | `yaml-language-server` | `.yaml`, `.yml` |
+| CSS | `vscode-css-language-server` | `.css`, `.scss`, `.less` |
+| HTML | `vscode-html-language-server` | `.html`, `.htm` |
 
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+L` | Switch model |
-| `Ctrl+N` | New session |
-| `Ctrl+O` | Connect provider |
-| `Ctrl+Z` | Undo |
-| `Ctrl+Y` | Redo |
-| `Esc Esc` | Rewind to checkpoint |
-| `Tab` | Cycle approval modes |
-| `Shift+Tab` | Cycle tool modes (Agent/Review/Plan) |
-| `Alt+T` | Toggle task panel |
-| `@` | Attach file |
-| `#` | Save/attach memory |
-
-## Configuration
-
-### Global Config
+### Installing LSP Servers
 
 ```bash
-novakit config set defaultModel claude-sonnet-4-5
-novakit config set maxTokens 16384
-novakit config set autoConfirmWrites true
+# TypeScript/JavaScript
+npm install -g typescript-language-server typescript
+
+# Python
+pip install python-lsp-server
+
+# Go
+go install golang.org/x/tools/gopls@latest
+
+# Rust
+rustup component add rust-analyzer
 ```
 
-Location: `~/.novakit/config.json`
+Servers are auto-started when needed and auto-detected based on file extensions.
 
-### Project Config
+## Custom Ignore File
+
+Control which files NovaKit ignores when searching and indexing.
+
+### File Locations
+
+1. **Project-level**: `.novakitignore` in project root
+2. **Global**: `~/.novakit/ignore`
+
+Both support gitignore syntax, including negation patterns.
+
+### Example `.novakitignore`
+
+```gitignore
+# Large data files
+*.csv
+*.parquet
+data/
+
+# Test fixtures
+__fixtures__/
+*.snap
+
+# Generated files
+dist/
+build/
+*.generated.ts
+
+# Sensitive files
+.env*
+secrets/
+
+# But keep this vendor directory
+!important-vendor/
+```
+
+### Default Patterns
+
+These are always ignored (built-in):
+
+- **Directories**: `node_modules`, `.git`, `dist`, `build`, `.next`, `coverage`, `__pycache__`, `.venv`, `target`
+- **Binary files**: `*.png`, `*.jpg`, `*.gif`, `*.ico`, `*.woff`, `*.ttf`, `*.pdf`, `*.zip`
+- **Lock files**: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`
+- **Minified files**: `*.min.js`, `*.min.css`
+
+The ignore system applies to the `glob` and `grep` tools used by the AI agent.
+
+## IDE Extensions (Server Mode)
+
+NovaKit can run as a JSON-RPC server for integration with IDEs like VS Code and JetBrains.
+
+### Starting the Server
 
 ```bash
-novakit config init              # Create .novakit/config.json
+# Start server in stdio mode
+novakit serve
 ```
 
-Project settings override global settings.
+### Protocol
 
-### Key Options
+The server uses JSON-RPC 2.0 over stdio with Content-Length headers.
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `defaultModel` | — | Default model to use |
-| `maxTokens` | 16384 | Max tokens per request |
-| `maxToolIterations` | 10 | Max tool calls per response |
-| `autoConfirmWrites` | false | Skip confirmation for file ops |
-| `useVectorIndex` | true | Enable semantic search |
-| `approvalMode` | "auto" | Default approval mode |
+#### Requests
 
-## Pricing
+| Method | Description |
+|--------|-------------|
+| `initialize` | Initialize with project path and capabilities |
+| `chat` | Send a message and receive streaming response |
+| `tool/confirm` | Confirm or deny a tool execution |
+| `session/list` | List available sessions |
+| `abort` | Cancel current operation |
+| `shutdown` | Gracefully shutdown the server |
 
-NovaKit CLI is **free forever** with your own API keys.
+#### Notifications (Server → Client)
 
-For bundled multi-model access without managing keys:
+| Method | Description |
+|--------|-------------|
+| `$/text` | Streaming text content |
+| `$/toolCall` | Tool about to be executed |
+| `$/toolResult` | Tool execution completed |
+| `$/error` | Error occurred |
+| `$/progress` | Progress update |
 
-| Plan | Price | What You Get |
-|------|-------|--------------|
-| **Free** | $0 | BYOK (bring your own keys) |
-| **CLI Pro** | $12/mo | 2,000 credits + 500 signup bonus |
-| **CLI Team** | $39/mo | 10,000 credits + 3 seats + 1,000 bonus |
+### Example: Initialize
 
-Credits work across 50+ models including GPT-5, Claude Opus 4.5, Gemini 2.5 Pro.
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "projectPath": "/path/to/project",
+    "clientName": "vscode",
+    "clientVersion": "1.0.0"
+  }
+}
+```
 
-[View pricing](https://novakit.ai/pricing)
+**Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "serverVersion": "0.1.0",
+    "capabilities": {
+      "tools": ["read", "write", "edit", "glob", "grep", "bash", "..."],
+      "streaming": true,
+      "sessions": true,
+      "lsp": true
+    }
+  }
+}
+```
 
-## Agent Tools
+### Example: Chat
 
-NovaKit CLI includes 15+ built-in tools:
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "chat",
+  "params": {
+    "message": "Add a logout button to the header",
+    "sessionId": "optional-session-id"
+  }
+}
+```
 
-**File Operations:** `read`, `write`, `edit`, `apply_patch`, `glob`, `grep`, `list_directory`
+**Notifications received:**
+```json
+{"jsonrpc": "2.0", "method": "$/text", "params": {"content": "I'll add a logout button...", "done": false}}
+{"jsonrpc": "2.0", "method": "$/toolCall", "params": {"requestId": "uuid", "name": "edit", "arguments": {...}}}
+{"jsonrpc": "2.0", "method": "$/toolResult", "params": {"requestId": "uuid", "name": "edit", "success": true}}
+{"jsonrpc": "2.0", "method": "$/text", "params": {"content": "", "done": true}}
+```
 
-**Execution:** `bash` (with safety filters)
+**Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "sessionId": "session-uuid"
+  }
+}
+```
 
-**Web:** `web_search`, `web_fetch`
+### VS Code Extension Example
 
-**Code Intelligence:** `vector_search`, `lsp_goto_definition`, `lsp_find_references`, `lsp_hover`, `lsp_diagnostics`
+```typescript
+import { spawn } from 'child_process';
 
-**Memory:** `save_memory`, `read_memory`
+const server = spawn('novakit', ['serve'], {
+  cwd: workspaceRoot,
+  stdio: ['pipe', 'pipe', 'pipe']
+});
 
-**Vision:** `vision` (analyze images)
+// Send request
+function sendRequest(method: string, params: any) {
+  const content = JSON.stringify({
+    jsonrpc: '2.0',
+    id: nextId++,
+    method,
+    params
+  });
+  const message = `Content-Length: ${Buffer.byteLength(content)}\r\n\r\n${content}`;
+  server.stdin.write(message);
+}
 
-**Task Management:** `todos` (track multi-step tasks), `spawn_agent` (automated subagents)
+// Handle responses and notifications
+server.stdout.on('data', (data) => {
+  // Parse JSON-RPC messages...
+});
 
-## IDE Extensions
+// Initialize
+sendRequest('initialize', { projectPath: workspaceRoot });
 
-NovaKit CLI can run as a JSON-RPC server for IDE integration:
+// Chat
+sendRequest('chat', { message: 'Fix the bug in auth.ts' });
+```
+
+## UI Features
+
+### Performance Optimizations
+
+NovaKit is optimized for smooth, flicker-free terminal rendering:
+- **Adaptive streaming throttle** - Dynamically adjusts buffer timing based on chunk rate
+- **Isolated spinner animations** - Status bar spinners don't trigger parent re-renders
+- **Memoized components** - Input, StatusBar, and Markdown components use React.memo
+- **LRU cache for markdown** - Parsed markdown is cached to avoid re-parsing
+- **Native terminal scrollback** - Uses terminal's built-in scroll for mouse wheel support
+
+### Status Indicators
+
+- **Animated spinner** while thinking or executing tools
+- **Context usage** percentage in status bar
+- **Mode indicator** (Agent/Review/Plan) with color coding
+- **Provider and model** display
+
+### Provider Connect
+
+The provider connect dialog shows authentication status:
+- `✓ authenticated` - Provider has valid API key
+- `○ needs key` - Provider needs authentication
+
+## Security
+
+### File Access
+
+- Use `allowedReadRoots` to restrict file access to specific directories
+- Write/edit operations require confirmation (unless `autoConfirmWrites: true`)
+- Dangerous bash commands are blocked by default
+
+### Credentials
+
+- API keys are stored with restricted permissions (0600)
+- OAuth tokens stored separately in `~/.novakit/oauth/`
+- Keys are never logged or displayed in full
+- Support for environment variable fallback (`NOVAKIT_API_KEY`)
+
+### Blocked Commands
+
+The following patterns are blocked in bash:
+- `rm -rf /` and system path deletions
+- `shutdown`, `reboot`, `halt`, `poweroff`
+- Fork bombs
+- Device file writes
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NOVAKIT_API_KEY` | Default API key (fallback) |
+| `NOVAKIT_CONFIG_DIR` | Custom config directory |
+| `NO_COLOR` | Disable colored output |
+
+## Telemetry
+
+NovaKit collects anonymous usage data to improve the product. This is completely optional and can be disabled.
+
+### What We Collect
+
+- CLI version, platform, and Node.js version
+- Session duration, message count, and token usage
+- Tool execution (name, success/failure, duration)
+- Feature usage (vector index, compaction, etc.)
+- Error types (no sensitive data)
+
+### What We DON'T Collect
+
+- File paths or code content
+- Prompts or conversations
+- API keys or credentials
+- Any personally identifiable information
+
+### Opting Out
 
 ```bash
-novakit serve    # Start JSON-RPC server on stdio
+novakit config set telemetryEnabled false
 ```
 
-VS Code and JetBrains extensions coming soon.
+## Troubleshooting
 
-## Documentation
+### Run Diagnostics
 
-- [Getting Started](https://novakit.ai/docs/cli/getting-started)
-- [Configuration Guide](https://novakit.ai/docs/cli/configuration)
-- [Custom Commands](https://novakit.ai/docs/cli/custom-commands)
-- [MCP Integration](https://novakit.ai/docs/cli/mcp)
-- [LSP Setup](https://novakit.ai/docs/cli/lsp)
+```bash
+novakit doctor
+```
 
-## Support
+### Common Issues
 
-- [Report a Bug](https://github.com/omer-yld/novakit-cli-public/issues/new?template=bug_report.md)
-- [Request a Feature](https://github.com/omer-yld/novakit-cli-public/issues/new?template=feature_request.md)
-- [Email Support](mailto:support@novakit.ai)
+**"Not authenticated"**
+```bash
+novakit auth login --provider <provider-name>
+# Or use ctrl+o in chat to connect
+```
 
-## Changelog
+**"Model not found"**
+- Check model name matches provider's naming
+- Use `novakit provider presets` to see default models
+- Ensure the model is in your `preferredModels` or fetched from API
 
-See [CHANGELOG.md](CHANGELOG.md) for release history.
+**"Authentication failed" for GitHub Copilot**
+- Copilot tokens expire quickly (~30 min)
+- Token refresh is automatic if OAuth token is valid
+- If issues persist, reconnect with `ctrl+o`
 
-## License
+**High context usage**
+```bash
+# Compact the session
+novakit session compact <session-id>
 
-NovaKit CLI is proprietary software. See [LICENSE.md](LICENSE.md) for details.
+# Or in chat
+/compact
 
----
+# Auto-compact triggers at contextThreshold (default 90%)
+```
 
-<p align="center">
-  Made with love by the NovaKit team
-</p>
+**Favorites not showing**
+- Favorites are stored in global config (`~/.novakit/config.json`)
+- Project config doesn't override `favoriteModels`
+
+
